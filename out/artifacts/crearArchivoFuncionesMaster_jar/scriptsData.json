@@ -1,0 +1,19 @@
+{
+    "carpetaScripts": "T:\\UFT_Work\\Escenarios de XPOS\\CASOS_UNITARIOS\\FUNCIONALIDAD",
+    "nombreArchivo": "hmmmh",
+    "extensionArchivo": "txt",
+    "carpetaDestinoArchivo": "T:\\UFT_Work\\",
+    "scripts": [
+      "CP_FunAp14_010",
+      "CP_FunAp14_011",
+      "CP_FunAp14_012",
+      "CP_FunAp14_021",
+      "CP_FunAp14_024",
+      "CP_FunAp14_019",
+      "CP_FunAp14_007",
+      "CP_FunAp14_008",
+      "CP_FunAp14_026",
+      "CP_FunAp14_016",
+      "CP_FunAp14_017"
+    ]
+  }

@@ -1,0 +1,1604 @@
+Public Function CP_FunAp14_010(sParameter)
+	﻿'#################################################################
+	'ID Prueba: CP_FunAp14_010
+	'Función de Negocio: MUN-Pagar Predial en línea
+	'TestName: MTC-FT-005- MUN-Pagar Predial en línea
+	'Aplicacion: XPOS
+	'Criticidad: Crítica/Alta
+	'Autor: B Alonso Mejia Ortiz
+	'#################################################################
+	'sParameter = "&Producto=99123402&NombreProducto=IZZI&PrecioServicio=350.00&"
+	sParameter = "&Producto=501085678131&NombreProducto=SKY en Linea&PrecioServicio=350.00&"
+	Dim sTestId, sId, sStep
+	Dim sPswd, sValor
+	'	Dim sIPProcesos, dID_TXN, sCD_TXN_PCKG, dCD_TXN_PCKG, sCD_TXN_PCKG_mas1
+	Dim  ObjCon, StrSQuery
+	'Los insumos para Impuesto Predial son: 09009001, 09009002, 09009003, 09009004, 09009005
+	
+	
+	Set ObjCon= GetCConexionBd
+	
+	'	sIPProcesos=datatable("DT_IP_Pro",dtGlobalSheet)
+	
+	sTestId = "CP_FunAp14_010"	
+	sProducto = getParameter(sParameter, "Producto")
+	sNombreProducto = getParameter(sParameter, "NombreProducto")
+	sPrecio = getParameter(sParameter, "PrecioServicio")
+	
+		'### Test ###
+			If Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10*.*","text:=Clear","enabled:=True").Exist(6) Then
+				Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10*.*","text:=Clear","enabled:=True").Highlight
+				Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10*.*","text:=Clear","enabled:=True").Click
+				writeTextBox "&devname=txtCode&click=SI&enter=SI", ""
+			End If
+			MensajesFlotantes
+	'- Seleccionar el menú "Servicios".
+	'- ?Validar que se muestren los Submenús de pago de servicios con los que cuenta el Xpos.
+	'- Ingresar en el cuadro de Búsqueda "Impuesto Predial"
+	'- ?La pantalla solo mostrara el submenú Impuesto Predial
+	'- Seleccionar el Submenú "Impuesto Predial"
+	'- ?Validar que se muestre la pantalla el mensaje "Impuesto Predial" 
+	' 	Se cobrara 5.00 por consulta. Continuar…??
+	'- Seleccionar al mostrarse el mensaje "Se cobrar 5.00 por consulta .Continuar?"
+	'- ?Validar que se muestre la pantalla Pagos en Línea
+	'- Ingresar en al pantalla Pagos en Línea el Numero de Expediente, confirmar Expediente y dar
+	'- ?Validar que se Habilite el Botón
+	'- Seleccionar el Botón y el Check en el grande
+	'- ?Validar que se habilite el Botón
+	'- Seleccionar
+	'- ?Validar que se muestre el mensaje "Al ser un servicio en Línea no hay cancelaciones"
+	'- Seleccionar En el Aviso Al ser un servicio en línea, No hay cancelaciones.
+	'- ?Validar que se muestre en el Journal el Impuesto Predial y el monto total a pagar
+	'- Subtotalizar $(+)
+	'- ?Validar que se muestren las diferentes formas de pago
+	'- Seleccionar el tipo de pago
+	'- ?Validar que se imprima el ticket del pago Impuesto Predial Con el valor total y la comisión por el cobro del servicio
+	'
+	'WpfWindow("Xpos").WpfButton("SKY EN LINEA").Click
+	
+	Menu Array("Servicios", "IMPUESTO PREDIAL")
+	wait 2
+	
+	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=IMPUESTO PREDIAL").Exist(7) Then
+		WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=SI","devname:=SI").Highlight 
+		pressButton "&Text=Si&devname=SI&index=0&wait=1"	
+		wait 2
+	Else
+		Call Workbook_Open ("Caso de prueba fallado, Error Confirmación de la operación con costo de 5 pesos",5) ' imprimir en pantalla ventana flotante'
+		datatable("DT_APIType",dtGlobalSheet) = "CODIGO"
+		datatable("DT_APITitle",dtGlobalSheet) = "CODIGO" & " - " & sTestId & " - " & sNombreProducto & " KO "
+		sNombreError = "Error Confirmación de la operación con costo de 5 pesos "
+		sCadena= "--op add -ty bug --t " & sNombreError & " --sr " & datatable("DT_StepsToReproduce",dtGlobalSheet) & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet)
+		Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "Caso de prueba fallado, Error Confirmación de la operación con costo de 5 pesos"
+		
+		wait 4
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		carpe= "TiketEvidencia"
+		dir="C:\UFT\" & carpe
+		If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+		End If
+		sCP="CP_FunAp14_010"
+		dFechaActual=Date()
+		tHoraActual= time()
+		call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+		ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+		ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+		Desktop.CaptureBitmap ScreenName,True
+		
+	End If
+	wait 3   
+	'	Validar que se encyentre en la ventana correcta de pagos en linea
+	wait 2
+	If  Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TPanel").Exist(7) Then
+		Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TPanel").Highlight
+	Else
+		'Print "error Ventana P_Linea"
+		Call Workbook_Open ("Caso de prueba fallado, Error Confirmación de la Ventana Pago de Predial",5) ' imprimir en pantalla ventana flotante'
+		datatable("DT_APIType",dtGlobalSheet) = "CODIGO"
+		datatable("DT_APITitle",dtGlobalSheet) = "CODIGO" & " - " & sTestId & " - " & sNombreProducto & " KO "
+		sNombreError = "Error Confirmación de la ventana de Pago de Predial"
+		sCadena= "--op add -ty bug --t " & sNombreError & " --sr " & datatable("DT_StepsToReproduce",dtGlobalSheet) & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet)
+		Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "Caso de prueba fallado, Error Confirmación de la ventana de Pago de Predial"
+	
+		wait 4
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		carpe= "TiketEvidencia"
+		dir="C:\UFT\" & carpe
+		If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+		End If
+		sCP="CP_FunAp14_010"
+		dFechaActual=Date()
+		tHoraActual= time()
+		call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+		ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+		ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+		Desktop.CaptureBitmap ScreenName,True			
+	End If
+	wait 2 @@ hightlight id_;_1957648744_;_script infofile_;_ZIP::ssf40.xml_;_
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=0").Type "09009001"
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=0").Type  micReturn @@ hightlight id_;_132688_;_script infofile_;_ZIP::ssf179.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=1").Type "09009001" @@ hightlight id_;_132690_;_script infofile_;_ZIP::ssf180.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=1").Type  micReturn @@ hightlight id_;_132690_;_script infofile_;_ZIP::ssf181.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Consulta","regexpwndclass:=TXiButton","nativeclass:=TXiButton").Click '51,23 @@ hightlight id_;_67166_;_script infofile_;_ZIP::ssf182.xml_;_
+	wait 6
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 13,29 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf201.xml_;_
+	wait 3
+	'Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCheckBox").Click 11,9 @@ hightlight id_;_1377746_;_script infofile_;_ZIP::ssf202.xml_;_
+	wait 3
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 10,26 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf203.xml_;_
+	wait 1
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 16,27 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf204.xml_;_
+	wait 1
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Procesar","regexpwndclass:=TXiButton","nativeclass:=TXiButton").Click 46,26 @@ hightlight id_;_787234_;_script infofile_;_ZIP::ssf205.xml_;_
+	wait 5
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").Dialog("text:=Pago de Impuesto Predial.","nativeclass:=#32770","is owned window:=True","is child window:=False").WinButton("text:=&Sí","nativeclass:=Button").Click @@ hightlight id_;_1639606_;_script infofile_;_ZIP::ssf208.xml_;_
+	wait 5
+	pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+	MensajesFlotantes
+	pressButton "&Label=Pagar&devname=btn1&index=0&wait=0"
+	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=No","devname:=Btn2").Exist(5) Then
+		WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=No","devname:=Btn2").Click
+		wait 2
+	End If
+	MensajesFlotantes
+	wait 2
+	
+	Dim Myarr
+	'RevisaFileP_Linea(SCriptID)
+	Myarr=RevisaFileP_Linea("CP_FunAp14_010")
+	
+	wait 2
+	sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+	
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	
+	carpe=	"TiketEvidencia"	
+	dir="C:\UFT\" & carpe
+	If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+	End If
+	sCP="CP_FunAp14_010"
+	
+	dFechaActual=Date()
+	tHoraActual= time()
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set tf = fso.CreateTextFile("C:\\UFT\\TiketEvidencia\\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_PD.txt", True )
+	call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_PD.txt",5)
+	wait 1
+	tf.Write(sNota)    'sFormula
+	tf.Close()
+	
+				'Obtener ticket del serrvicio GeneraTicketTxt
+					sArchivoRuta= ""
+					sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+					testName = "CP_FunAp14_010"
+					sFolio= BuscaFolioVenta(sNota, iFolio,6)
+					call Workbook_Open("El ticket es: "&sFolio& "",5)
+					Print ("ticket"&sFolio)
+					'sFolio= BuscaFolioVenta(sNota, iFolio,0)
+					GeneraTicketTxt sArchivoRuta,sNota,testName
+					call Workbook_Open("El ticket fue grabado como evidencia en: "&sArchivoRuta& "",5)
+	
+End Function
+
+Public Function CP_FunAp14_011(sParameter)
+	﻿'#################################################################
+	'ID Prueba: CP_FunAp14_011
+	'Función de Negocio: MUN-Pagar Predial en línea con artículos
+	'TestName: MTC-FT-006- MUN-Pagar Predial en línea con artículos
+	'Aplicacion: XPOS
+	'Criticidad: Crítica/Alta
+	'Autor: B Alonso Mejia Ortiz
+	'#################################################################
+	'sParameter = "&Producto=99123402&NombreProducto=IZZI&PrecioServicio=350.00&"
+	'sParameter = "&Producto=501085678131&NombreProducto=SKY en Linea&PrecioServicio=350.00&"
+	Dim sTestId, sId, sStep
+	Dim sPswd, sValor
+	'	Dim sIPProcesos, dID_TXN, sCD_TXN_PCKG, dCD_TXN_PCKG, sCD_TXN_PCKG_mas1
+	Dim  ObjCon, StrSQuery
+	'Los insumos para Impuesto Predial son: 09009001, 09009002, 09009003, 09009004, 09009005
+	
+	
+	Set ObjCon= GetCConexionBd
+	
+	sTestId = "CP_FunAp14_011"	
+	sProducto = getParameter(sParameter, "Producto")
+	sNombreProducto = getParameter(sParameter, "NombreProducto")
+	sPrecio = getParameter(sParameter, "PrecioServicio")
+	
+	CP_VerificaSistema
+	'### Test ###
+	wait 30
+	XPOSLOGIN
+	wait 2
+	MontoInical
+	wait 2
+	MensajesFlotantes
+	wait 2
+	'- Seleccionar el menú "Servicios".
+	'- ?Validar que se muestren los Submenús de pago de servicios con los que cuenta el Xpos.
+	'- Ingresar en el cuadro de Búsqueda "Impuesto Predial"
+	'- ?La pantalla solo mostrara el submenú Impuesto Predial
+	'- Seleccionar el Submenú "Impuesto Predial"
+	'- ?Validar que se muestre la pantalla el mensaje "Impuesto Predial" 
+	' 
+	' Se cobrara 5.00 por consulta. Continuar…??
+	'- Seleccionar al mostrarse el mensaje "Se cobrar 5.00 por consulta .Continuar?"
+	'- ?Validar que se muestre la pantalla Pagos en Línea
+	'- Ingresar en al pantalla Pagos en Línea el Numero de Expediente, confirmar Expediente y dar
+	'- ?Validar que se Habilite el Botón
+	'- Seleccionar el Botón y el Check en el grande
+	'- ?Validar que se habilite el Botón
+	'- Seleccionar
+	'- ?Validar que se muestre el mensaje "Al ser un servicio en Línea no hay cancelaciones"
+	'- Seleccionar En el Aviso Al ser un servicio en línea, No hay cancelaciones.
+	'- ?Validar que se muestre en el Journal el Impuesto Predial y el monto total a pagar
+	'- Ingresar SKU, Escanear, o buscar F5, algún articulo y dar
+	'- ?Validar que se muestre en Journal el servicio de Predial y el articulo de venta.
+	'- Subtotalizar $(+)
+	'- ?Validar que se muestren las diferentes formas de pago
+	'- Seleccionar el tipo de pago
+	'- ?Validar que se imprima el ticket del pago Impuesto Predial Con el valor total y la comisión por el cobro del servicio y el articulo.
+	'
+	
+	Menu Array("Servicios", "IMPUESTO PREDIAL")
+	wait 2
+	
+	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=IMPUESTO PREDIAL").Exist(7) Then
+		WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=SI","devname:=SI").Highlight 
+		pressButton "&Text=Si&devname=SI&index=0&wait=1"	
+		wait 2
+	Else
+		Call Workbook_Open ("Caso de prueba fallado, Error Confirmación de la operación con costo de 5 pesos",5) ' imprimir en pantalla ventana flotante'
+		datatable("DT_APIType",dtGlobalSheet) = "CODIGO"
+		datatable("DT_APITitle",dtGlobalSheet) = "CODIGO" & " - " & sTestId & " - " & sNombreProducto & " KO "
+		sNombreError = "Error Confirmación de la operación con costo de 5 pesos "
+		sCadena= "--op add -ty bug --t " & sNombreError & " --sr " & datatable("DT_StepsToReproduce",dtGlobalSheet) & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet)
+		Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "Caso de prueba fallado, Error Confirmación de la operación con costo de 5 pesos"
+		
+		wait 4
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		carpe= "TiketEvidencia"
+		dir="C:\UFT\" & carpe
+		If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+		End If
+		sCP="CP_FunAp14_011"
+		dFechaActual=Date()
+		tHoraActual= time()
+		call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+		ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+		ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+		Desktop.CaptureBitmap ScreenName,True
+		
+	End If
+	wait 3   
+	'	Validar que se encyentre en la ventana correcta de pagos en linea
+	wait 2
+	If  Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TPanel").Exist(7) Then
+		Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TPanel").Highlight
+	Else
+		'Print "error Ventana P_Linea"
+		Call Workbook_Open ("Caso de prueba fallado, Error Confirmación de la Ventana Pago de Predial",5) ' imprimir en pantalla ventana flotante'
+		datatable("DT_APIType",dtGlobalSheet) = "CODIGO"
+		datatable("DT_APITitle",dtGlobalSheet) = "CODIGO" & " - " & sTestId & " - " & sNombreProducto & " KO "
+		sNombreError = "Error Confirmación de la ventana de Pago de Predial"
+		sCadena= "--op add -ty bug --t " & sNombreError & " --sr " & datatable("DT_StepsToReproduce",dtGlobalSheet) & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet)
+		Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "Caso de prueba fallado, Error Confirmación de la ventana de Pago de Predial"
+	
+		wait 4
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		carpe= "TiketEvidencia"
+		dir="C:\UFT\" & carpe
+		If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+		End If
+		sCP="CP_FunAp14_011"
+		dFechaActual=Date()
+		tHoraActual= time()
+		call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+		ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+		ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+		Desktop.CaptureBitmap ScreenName,True			
+	End If
+	wait 2 @@ hightlight id_;_1957648744_;_script infofile_;_ZIP::ssf40.xml_;_
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=0").Type "09009001"
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=0").Type  micReturn @@ hightlight id_;_132688_;_script infofile_;_ZIP::ssf179.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=1").Type "09009001" @@ hightlight id_;_132690_;_script infofile_;_ZIP::ssf180.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=1").Type  micReturn @@ hightlight id_;_132690_;_script infofile_;_ZIP::ssf181.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Consulta","regexpwndclass:=TXiButton","nativeclass:=TXiButton").Click '51,23 @@ hightlight id_;_67166_;_script infofile_;_ZIP::ssf182.xml_;_
+	wait 6
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 13,29 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf201.xml_;_
+	wait 3
+	'Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCheckBox").Click 11,9 @@ hightlight id_;_1377746_;_script infofile_;_ZIP::ssf202.xml_;_
+	wait 3
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 10,26 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf203.xml_;_
+	wait 1
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 16,27 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf204.xml_;_
+	wait 1
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Procesar","regexpwndclass:=TXiButton","nativeclass:=TXiButton").Click 46,26 @@ hightlight id_;_787234_;_script infofile_;_ZIP::ssf205.xml_;_
+	wait 5
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").Dialog("text:=Pago de Impuesto Predial.","nativeclass:=#32770","is owned window:=True","is child window:=False").WinButton("text:=&Sí","nativeclass:=Button").Click @@ hightlight id_;_1639606_;_script infofile_;_ZIP::ssf208.xml_;_
+	wait 5
+	
+	
+	sParameter = "&Producto=7503003764670&NombreProducto=TORTILLASHARINA360G&Tecla=0&"
+	
+	sProducto = getParameter(sParameter, "Producto")
+	sNombreProducto = getParameter(sParameter, "NombreProducto")
+	sTecla = getParameter(sParameter, "Tecla")
+	
+	WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=btnSearchByPrice","text:=Precio").Highlight
+	pressButton "&Label=Precio&devname=btnSearchByPrice&index=0"
+	writeTextBox "&devname=txtCode&click=SI&enter=SI", sProducto			
+	
+	pressButton "&Label=Aceptar&devname=btnAccept&index=0"
+	
+	wait 10
+	pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+	wait 2
+	Redondeo "&redondear=No&"	
+	wait 2
+	MensajesFlotantes
+	wait 2
+	'wait 3
+	'pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+	'MensajesFlotantes
+	pressButton "&Label=Pagar&devname=btn1&index=0&wait=0"
+	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=No","devname:=Btn2").Exist(5) Then
+		WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=No","devname:=Btn2").Click
+		wait 2
+	End If
+	MensajesFlotantes
+	wait 2
+	
+	Dim Myarr
+	'RevisaFileP_Linea(SCriptID)
+	Myarr=RevisaFileP_Linea("CP_FunAp14_011")
+	
+	wait 2
+	sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+	
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	
+	carpe=	"TiketEvidencia"	
+	dir="C:\UFT\" & carpe
+	If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+	End If
+	sCP="CP_FunAp14_011"
+	
+	dFechaActual=Date()
+	tHoraActual= time()
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set tf = fso.CreateTextFile("C:\\UFT\\TiketEvidencia\\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_PD.txt", True )
+	call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_PD.txt",5)
+	wait 1
+	tf.Write(sNota)    'sFormula
+	tf.Close()
+	wait 1
+	
+End Function
+
+Public Function CP_FunAp14_012(sParameter)
+	﻿'#################################################################
+	'ID Prueba: CP_FunAp14_012
+	'Función de Negocio: MUN-Pagar Predial en línea con TAE
+	'TestName: MTC-FT-007- MUN-Pagar Predial en línea con TAE
+	'Aplicacion: XPOS
+	'Criticidad: Crítica/Alta
+	'Autor: B Alonso Mejia Ortiz
+	'#################################################################
+	'sParameter = "&Producto=99123402&NombreProducto=IZZI&PrecioServicio=350.00&"
+	'sParameter = "&Producto=501085678131&NombreProducto=SKY en Linea&PrecioServicio=350.00&"
+	Dim sTestId, sId, sStep
+	Dim sPswd, sValor
+	'	Dim sIPProcesos, dID_TXN, sCD_TXN_PCKG, dCD_TXN_PCKG, sCD_TXN_PCKG_mas1
+	Dim  ObjCon, StrSQuery
+	'Los insumos para Impuesto Predial son: 09009001, 09009002, 09009003, 09009004, 09009005
+	
+	
+	Set ObjCon= GetCConexionBd
+	
+	sTestId = "CP_FunAp14_012"	
+	sProducto = getParameter(sParameter, "Producto")
+	sNombreProducto = getParameter(sParameter, "NombreProducto")
+	sPrecio = getParameter(sParameter, "PrecioServicio")
+	
+	CP_VerificaSistema
+	'### Test ###
+	wait 30
+	XPOSLOGIN
+	wait 2
+	MontoInical
+	wait 2
+	MensajesFlotantes
+	wait 2
+	
+	'- Seleccionar el menú "Servicios".
+	'- ?Validar que se muestren los Submenús de pago de servicios con los que cuenta el Xpos.
+	'- Ingresar en el cuadro de Búsqueda "Impuesto Predial"
+	'- ?La pantalla solo mostrara el submenú Impuesto Predial
+	'- Seleccionar el Submenú "Impuesto Predial"
+	'- ?Validar que se muestre la pantalla el mensaje "Impuesto Predial" 
+	' 
+	' Se cobrara 5.00 por consulta. Continuar…??
+	'- Seleccionar al mostrarse el mensaje "Se cobrar 5.00 por consulta .Continuar?"
+	'- ?Validar que se muestre la pantalla Pagos en Línea
+	'- Ingresar en al pantalla Pagos en Línea el Numero de Expediente, confirmar Expediente y dar
+	'- ?Validar que se Habilite el Botón
+	'- Seleccionar el Botón y el Check en el grind
+	'- ?Validar que se habilite el Botón
+	'- Seleccionar
+	'- ?Validar que se muestre el mensaje "Al ser un servicio en Línea no hay cancelaciones"
+	'- Seleccionar En el Aviso Al ser un servicio en línea, No hay cancelaciones.
+	'- ?Validar que se muestre en el Journal el Impuesto Predial y el monto total a pagar
+	'- Seleccionar menú >Tiempo Aire>Tae Telcel 20
+	'- ?Validar que se muestre en Journal el servicio de Predial y TAE.
+	'- Subtotalizar $(+)
+	'- ?Validar que se imprime el ticket del servicio predial y se muestre la pantalla para ingresar el numero de celular a recargar.
+	'- Ingresar Confirmar>Aceptar y continuar
+	'- ?Validar que se procese el pago de Tare y se imprima el ticket del abono Telcel.
+	'
+	
+	Menu Array("Servicios", "IMPUESTO PREDIAL")
+	wait 2
+	
+	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=IMPUESTO PREDIAL").Exist(7) Then
+		WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=SI","devname:=SI").Highlight 
+		pressButton "&Text=Si&devname=SI&index=0&wait=1"	
+		wait 2
+	Else
+		Call Workbook_Open ("Caso de prueba fallado, Error Confirmación de la operación con costo de 5 pesos",5) ' imprimir en pantalla ventana flotante'
+		datatable("DT_APIType",dtGlobalSheet) = "CODIGO"
+		datatable("DT_APITitle",dtGlobalSheet) = "CODIGO" & " - " & sTestId & " - " & sNombreProducto & " KO "
+		sNombreError = "Error Confirmación de la operación con costo de 5 pesos "
+		sCadena= "--op add -ty bug --t " & sNombreError & " --sr " & datatable("DT_StepsToReproduce",dtGlobalSheet) & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet)
+		Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "Caso de prueba fallado, Error Confirmación de la operación con costo de 5 pesos"
+		
+		wait 4
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		carpe= "TiketEvidencia"
+		dir="C:\UFT\" & carpe
+		If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+		End If
+		sCP="CP_FunAp14_012"
+		dFechaActual=Date()
+		tHoraActual= time()
+		call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+		ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+		ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+		Desktop.CaptureBitmap ScreenName,True
+		
+	End If
+	wait 3   
+	'	Validar que se encyentre en la ventana correcta de pagos en linea
+	wait 2
+	If  Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TPanel").Exist(7) Then
+		Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TPanel").Highlight
+	Else
+		'Print "error Ventana P_Linea"
+		Call Workbook_Open ("Caso de prueba fallado, Error Confirmación de la Ventana Pago de Predial",5) ' imprimir en pantalla ventana flotante'
+		datatable("DT_APIType",dtGlobalSheet) = "CODIGO"
+		datatable("DT_APITitle",dtGlobalSheet) = "CODIGO" & " - " & sTestId & " - " & sNombreProducto & " KO "
+		sNombreError = "Error Confirmación de la ventana de Pago de Predial"
+		sCadena= "--op add -ty bug --t " & sNombreError & " --sr " & datatable("DT_StepsToReproduce",dtGlobalSheet) & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet)
+		Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "Caso de prueba fallado, Error Confirmación de la ventana de Pago de Predial"
+	
+		wait 4
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		carpe= "TiketEvidencia"
+		dir="C:\UFT\" & carpe
+		If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+		End If
+		sCP="CP_FunAp14_012"
+		dFechaActual=Date()
+		tHoraActual= time()
+		call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+		ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+		ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+		Desktop.CaptureBitmap ScreenName,True			
+	End If
+	wait 2 @@ hightlight id_;_1957648744_;_script infofile_;_ZIP::ssf40.xml_;_
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=0").Type "09009001"
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=0").Type  micReturn @@ hightlight id_;_132688_;_script infofile_;_ZIP::ssf179.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=1").Type "09009001" @@ hightlight id_;_132690_;_script infofile_;_ZIP::ssf180.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=1").Type  micReturn @@ hightlight id_;_132690_;_script infofile_;_ZIP::ssf181.xml_;_
+	wait 2
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Consulta","regexpwndclass:=TXiButton","nativeclass:=TXiButton").Click '51,23 @@ hightlight id_;_67166_;_script infofile_;_ZIP::ssf182.xml_;_
+	wait 6
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 13,29 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf201.xml_;_
+	wait 3
+	'Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCheckBox").Click 11,9 @@ hightlight id_;_1377746_;_script infofile_;_ZIP::ssf202.xml_;_
+	wait 3
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 10,26 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf203.xml_;_
+	wait 4
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxGridSite").Click 16,27 @@ hightlight id_;_656876_;_script infofile_;_ZIP::ssf204.xml_;_
+	wait 4
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Procesar","regexpwndclass:=TXiButton","nativeclass:=TXiButton").Click 46,26 @@ hightlight id_;_787234_;_script infofile_;_ZIP::ssf205.xml_;_
+	wait 5
+	Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial","is owned window:=True","is child window:=False").Dialog("text:=Pago de Impuesto Predial.","nativeclass:=#32770","is owned window:=True","is child window:=False").WinButton("text:=&Sí","nativeclass:=Button").Click @@ hightlight id_;_1639606_;_script infofile_;_ZIP::ssf208.xml_;_
+	wait 5
+	
+	
+	sParameter1 = "&Producto=8100000000&NombreProducto=TELCEL&"
+	
+	'Menu Array("Servicios", "IMPUESTO PREDIAL")
+	'wait 2
+	'
+	sProducto1 = getParameter(sParameter1, "Producto")
+	sNombreProducto1 = getParameter(sParameter1, "NombreProducto")
+	sPrecio1 = getParameter(sParameter1, "PrecioServicio")
+	'
+	'WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=btnSearchByPrice","text:=Precio").Highlight
+	'pressButton "&Label=Precio&devname=btnSearchByPrice&index=0"
+	'writeTextBox "&devname=txtCode&click=SI&enter=SI", sProducto			
+	'
+	
+			Menu Array("Tiempo Aire") ', "TELCEL","TAE TELCEL \$80"
+			wait 2
+			'Menu Array("TELCEL","TAE TELCEL \$80")
+			pressButton "&text=TELCEL&devname=btnMenu&index=0&wait=0"
+			'Menu Array("TELCEL")
+			wait 2
+			'Menu Array("TAE TELCEL \$80")
+			pressButton "&text=TAE TELCEL \$20&devname=btnMenu&index=0&wait=0"
+	      	wait 2
+		'End If
+			wait 2
+			'CierraVentanaRetiroyTareas
+			pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+			wait 2
+			pressButton "&Label=Pagar&devname=btn1&index=0"
+			wait 2
+			
+			writeTextBox "&Label=NumCel&nativeclass=TXEdit&click=SI&enter=SI&index=0&", sProducto1	
+			wait 2
+			writeTextBox "&Label=NumCelConfirmar&nativeclass=TXEdit&click=SI&enter=SI&index=0&", sProducto1	
+		
+			pressButton "&Label=Aceptar y Continuar&nativeclass=TButton&regexpwndtitle=&Aceptar y continuar&"
+		
+			If  WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Devolver").Exist(30) 	Then
+					Call Workbook_Open ("Caso de prueba fallado, Error Confirmación Pago de TAE",5) ' imprimir en pantalla ventana flotante'
+					datatable("DT_APIType",dtGlobalSheet) = "CODIGO"
+					datatable("DT_APITitle",dtGlobalSheet) = "CODIGO" & " - " & sTestId & " - " & sNombreProducto & " KO "
+					sNombreError = " Error Confirmación Pago de TAE "
+					sCadena= "--op add -ty bug --t " & sNombreError & " --sr " & datatable("DT_StepsToReproduce",dtGlobalSheet) & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet)
+					'systemutil.run "C:\\OXXO\\Genera bugs\\Ejecutable_CreacionBUG\\Oxxo.Xpos.TFS.Api\\Oxxo.Xpos.TFS.Api.exe", sCadena
+					Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "Caso de prueba fallado,  Error Confirmación Pago de TAE"
+					
+					wait 4
+					Set fso = CreateObject("Scripting.FileSystemObject")
+					carpe= "TiketEvidencia"
+					dir="C:\UFT\" & carpe
+					If Not fso.FolderExists(dir) Then
+					fso.CreateFolder (dir)
+					End If
+					sCP="CP_FunAp14_012"
+					dFechaActual=Date()
+					tHoraActual= time()
+					call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+					ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+					ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+					Desktop.CaptureBitmap ScreenName,True			
+					pressButton "&Label=Aceptar&devname=acceptButton&index=0"
+			End If
+	
+	
+	'pressButton "&Label=Aceptar&devname=btnAccept&index=0"
+	'
+	'wait 10
+	'pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+	'wait 2
+	'Redondeo "&redondear=No&"	
+	wait 2
+	MensajesFlotantes
+	wait 2
+	'wait 3
+	'pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+	'MensajesFlotantes
+	'pressButton "&Label=Pagar&devname=btn1&index=0&wait=0"
+	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=No","devname:=Btn2").Exist(5) Then
+		WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=No","devname:=Btn2").Click
+		wait 2
+	End If
+	'MensajesFlotantes
+	'wait 2
+	
+	Dim Myarr
+	'RevisaFileP_Linea(SCriptID)
+	Myarr=RevisaFileP_Linea("CP_FunAp14_011")
+	
+	wait 2
+	sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+	
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	
+	carpe=	"TiketEvidencia"	
+	dir="C:\UFT\" & carpe
+	If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+	End If
+	sCP="CP_FunAp14_012"
+	
+	dFechaActual=Date()
+	tHoraActual= time()
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set tf = fso.CreateTextFile("C:\\UFT\\TiketEvidencia\\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_PD.txt", True )
+	call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_PD.txt",5)
+	wait 1
+	tf.Write(sNota)    'sFormula
+	tf.Close()
+	wait 1
+	
+End Function
+
+Public Function CP_FunAp14_021(sParameter)
+	﻿'#################################################################
+		'ID Prueba: CP_FunAp14_021
+		'Función de Negocio: Funcionalidad
+		'TestName: MTC-FT-004-Venta de TAE pagada con efectivo con Servicio apagado en Xmonitor
+		'Aplicacion: XPOS
+		'Criticidad: Crítica/Baja
+		'Autor: Baltazar Lugo
+		'#################################################################
+		sParameter = "&Producto=8100000001&NombreProducto=TAE TELCEL 80&"
+		Dim sTestId, sId, sStep
+		Dim sPswd, sValor
+		
+		sTestId = "CP_FunAp14_021"
+		sProducto = getParameter(sParameter, "Producto")
+		sNombreProducto = getParameter(sParameter, "NombreProducto")
+		
+		'### Test ###
+	
+	
+		apagarXMonitor(true)
+		'### Test ###
+	    Menu Array("Tiempo Aire", "TELCEL","TAE TELCEL \$80")
+	      
+	    wait(2)
+	    pressButton "&Label=$(+)&devname=btnTotalizar&index=0"
+	    wait(2)
+	    
+	    'Mensaje lealtad
+	 	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=NO DESEO ACUMULAR PUNTOS EN ESTA COMPRA","devname:=btnAbandom").Exist(2) Then
+			WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=NO DESEO ACUMULAR PUNTOS EN ESTA COMPRA","devname:=btnAbandom").Click
+		End If
+		MensajesFlotantes
+	
+		wait 2
+		If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Desea Tiempo Aire\?").Exist(5) Then
+			    pressButton "&Label=No&devname=Btn2&index=0"
+		End If
+	
+	   If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=¿ Quiere ayudar redondeando \?").Exist(1) Then
+		   Redondeo "&redondear=No&"
+		End If
+	    
+	    pressButton "&Label=Pagar&devname=btn1&index=0"
+	    wait 5
+	    
+	    'MensajesFlotantes
+		'CierraVentanaRetiroyTareas
+		
+		writeTextBox "&Label=NumCel&nativeclass=TXEdit&click=SI&enter=SI&index=0&", sProducto	
+		wait 2
+		writeTextBox "&Label=NumCelConfirmar&nativeclass=TXEdit&click=SI&enter=SI&index=0&", sProducto	
+	wait 1
+		pressButton "&Label=Aceptar y Continuar&nativeclass=TButton&regexpwndtitle=&Aceptar y continuar&"
+	
+			If  WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Devolver").Exist(30) 	Then
+					'pressButton "&Label=Aceptar&devname=acceptButton&index=0"
+					pressButton "&Label=Aceptar&devname=acceptButton&index=0"
+					datatable("DT_Result",dtGlobalSheet) = "KO"
+					datatable("DT_APIType",dtGlobalSheet) = "CODIGO"	
+					datatable("DT_APITitle",dtGlobalSheet) = "CODIGO"  & " - " &  sTestId & " - " & sNombreProducto & " KO "		
+					sNombreError = """Error-CODIGO"  & " - " &  sTestId & " - " & sNombreProducto & " KO """			
+					sCadena= "--op add -ty bug --t " & sNombreError  & " --sr "  & datatable("DT_StepsToReproduce",dtGlobalSheet)  & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet) 
+	'				systemutil.run "C:\\OXXO\\Genera bugs\\Ejecutable_CreacionBUG\\Oxxo.Xpos.TFS.Api\\Oxxo.Xpos.TFS.Api.exe", sCadena
+					Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "No logró hacer conexión TAE, "& sNombreProducto
+			End If
+	
+	
+	'    If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=Aviso").Exist(3) Then
+	'		    pressButton "&Label=POSPONER&devname=btnPostpone&index=0"
+	'		    
+	'	End If
+	'CierraVentanaRetiroyTareas
+	
+	'consulta ultimo ticket.
+	'Validación del ticket y de base de datos si considen los montos 
+	sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+	'Buscar Monto en el ticket del servicio en liena
+	sFolio2= BuscaTiketServicio(sNota, iFolio, 16)
+	print ("Monto obtenido del ticket Efectivo M.N.: " + sFolio2)
+	
+	'Obtener numero de ticket del serrvicio BuscaTiketServicio [13]
+	sFolio= BuscaFolioVenta(sNota, iFolio,6)
+	
+	
+	wait 4
+	sFolioA = "0" 
+	Call BuscaUltimoTicket(sFolioA)
+	'sFolio= BuscaFolioVenta(sNota, iFolio,6)
+	Print ("Numero del folio: " & sFolioA)
+	
+	sFolio0 = 0
+	sFolio0 = Trim(sFolioA)
+	'Msgbox "ticket: "& sFolioA & " y el folio: " & sFolio0
+	Call Workbook_Open ("ticket"& sFolioA & "folio "& sFolio0,5) 
+	'sFolio="6306014"
+	
+	wait 3
+	'Montos_cfe_con_Artic suirve para traer el monto total de los servicios
+	CFEO=Montos_CFE_CON_ARTIC(sFolioA) 
+	'Msgbox "Total BD: "& CFEO  'Comisión
+	Call Workbook_Open ("Total BD " & CFEO & "  ,ticket completo en C:\UFT\TiketEvidencia\MTC-FT-004-Venta de TAE pagada con efectivo con Servicio apagado en Xmonitor",5) 
+	
+	wait 3
+	TOTAL=CFEO
+	'pagoServicio = CFEO(1,2)
+	'comision = CInt(comision)
+	'pagoServicio = CInt(pagoServicio)
+	'sTotalTicket = CInt(sFolio2)
+	'int TotalServicio = 0
+	
+	'suma del monto del servicio y el monto de la comisón 
+	TotalServicio=0.0
+	TotalServicio =TOTAL
+	
+	Print ( "tipo: " &  VarType(TotalServicio))
+	Print ( "Monto obtenido de la base de datos: " & CFEO)
+	Print ( "Monto obtenido de la base de datos: " & TotalServicio)
+	
+	T=CDbl(TotalServicio)
+	Print ( "tipo despues de cbdl: " &  VarType(T))
+	Print ( "tt: " &  T)
+	'Validación el monto del ticket es igual al monto de la base de datos ?
+	If TotalServicio1=sTotalTicket Then
+	Print ("Caso de prueba pasado coincide el monto del ticket con la de la base de datos")
+	'guardar ticket en txt
+	 If Window("regexpwndtitle:=Microsoft PosPrinter Simulator","regexpwndclass:=WindowsForms10.Window.8.app.*").WinObject("window id:=0","regexpwndclass:=WindowsForms10.EDIT.app.*","nativeclass:=WindowsForms10.EDIT.app.*","index:=1").Exist(2) Then
+	        Window("regexpwndtitle:=Microsoft PosPrinter Simulator","regexpwndclass:=WindowsForms10.Window.8.app.*").WinObject("window id:=0","regexpwndclass:=WindowsForms10.EDIT.app.*","nativeclass:=WindowsForms10.EDIT.app.*","index:=1").highlight
+	        sToket=Window("regexpwndtitle:=Microsoft PosPrinter Simulator","regexpwndclass:=WindowsForms10.Window.8.app.*").WinObject("window id:=0","regexpwndclass:=WindowsForms10.EDIT.app.*","nativeclass:=WindowsForms10.EDIT.app.*","index:=1").GetROProperty("text")   
+	        dFechaActual=Date()
+	        tHoraActual= time()
+	        Set fso = CreateObject("Scripting.FileSystemObject")
+	        Set tf = fso.CreateTextFile("C:\\UFT\\TiketEvidencia\\MTC-FT-004-Venta de TAE pagada con efectivo con Servicio apagado en Xmonitor" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & ".txt", True )
+	        call Workbook_Open("C:\UFT\TiketEvidencia\MTC-FT-004-Venta de TAE pagada con efectivo con Servicio apagado en Xmonitor" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & ".txt",5)
+	        'msgbox "C:\\UFT\\MTC_FT_015_ReversaAutomáticaTAE" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & ".txt"   
+	        wait 1
+	        tf.Write(sToket)    'sFormula
+	        tf.Close()
+	        wait 1
+	    End If
+		
+	Else
+		'Print "Error No se emuestra la Ventana P_Linea"
+		Call Workbook_Open ("Caso de prueba fallado, Error no coincide el monto del ticket con la BD",5) ' imprimir en pantalla ventana flotante'			
+		datatable("DT_APIType",dtGlobalSheet) = "CODIGO"	
+		datatable("DT_APITitle",dtGlobalSheet) = "CODIGO"  & " - " &  sTestId & " - " & sNombreProducto & " KO "		
+		sNombreError = "Error no coincide el monto del ticket con la BD"			
+		sCadena= "--op add -ty bug --t " & sNombreError  & " --sr "  & datatable("DT_StepsToReproduce",dtGlobalSheet)  & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet) 
+		'systemutil.run "C:\\OXXO\\Genera bugs\\Ejecutable_CreacionBUG\\Oxxo.Xpos.TFS.Api\\Oxxo.Xpos.TFS.Api.exe", sCadena
+		Reporter.ReportEvent micFail,  "Error Caso de Prueba "& sTestId, "Error no coincide el monto del ticket con la BD"	
+	
+		wait 4
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		carpe=	"TiketEvidencia"	
+		dir="C:\UFT\" & carpe
+		If Not fso.FolderExists(dir) Then
+			fso.CreateFolder (dir)
+		End If
+		sCP="CP_FunAp14_021"
+	    dFechaActual=Date()
+	    tHoraActual= time()
+	    call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+		ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+		ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+		Desktop.CaptureBitmap ScreenName,True	
+	
+	End If
+	wait 2
+	apagarXMonitor(false)
+	MensajesFlotantes
+End Function
+
+Public Function CP_FunAp14_024(sParameter)
+	﻿'#################################################################
+		'ID Prueba: CP_FunRC_024
+		'Función de Negocio: Funcionalidad
+		'TestName: MTC-FT-050-menú FF - Shortcut para la navegación en el menú Bebidas
+		'Aplicacion: XPOS
+		'Criticidad: Crítica/Baja
+		'Autor: Juan Antonio Lopez
+	'#################################################################
+		sParameter = "&Producto=4152313100000000&"
+		Dim sTestId, sId, sStep
+		Dim sPswd, sValor
+		Dim ObjDesM
+		Set 	ObjDesM= GetCMetodosGenerales
+		sTestId = "CP_FunRC_024"
+		sValor = "1200"
+		sProducto = getParameter(sParameter, "Producto")
+		sNombreProducto = getParameter(sParameter, "NombreProducto")
+		
+	
+		'### Test ###
+		Menu Array("Financieros", "Depósito \(corresponsalias\)","Depósito de tarjeta")
+		
+	'	Menu Array("Financieros", "Depósito \(Corresponsalias\)","Depósito de tarjeta")
+	     wait(2)
+			
+		If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=TITLE","text:=Error").exist(20) AND WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Plataforma no disponible, vuelva a intentarlo\.").exist(20) Then
+				WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=acceptButton").highlight	
+				WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=acceptButton").Click	
+				'Mover mensaje de error Ambiente
+				Print("Problema de ambiente, no se pudo accceder a los usuarios")
+				'Reporter.ReportEvent micFail,  "Error Caso de Prueba "& sTestId, "Caso de prueba fallado, No pudo acceder a los usuarios "
+	
+		Else
+		'02
+			If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=Cajeros").exist(20) AND WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=Aceptar").exist(10) Then
+	
+					WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=Aceptar").highlight	
+					wait (10)
+					XPOSLOGIN
+	
+	 
+					'validar que se muestre la ventana de Número de tarjeta
+					'03
+					If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfList("devname:=Número de tarjeta").exist(20) Then					
+						
+						'Ingresar el numero de tarjeta
+						WpfWindow("classname:=Oxxo.Xpos.Shell").WpfEdit("devname:=txtMaskedCardNumber").highlight
+						WpfWindow("classname:=Oxxo.Xpos.Shell").WpfEdit("devname:=txtMaskedCardNumber").Type sProducto
+						wait(3)
+						'confirmar el numero de tarjeta
+						WpfWindow("classname:=Oxxo.Xpos.Shell").WpfEdit("devname:=txtMaskedConfirmCardNumber").highlight
+						WpfWindow("classname:=Oxxo.Xpos.Shell").WpfEdit("devname:=txtMaskedConfirmCardNumber").Type sProducto	
+	
+						'click en aceptar
+						simulateUserInput "&Keyboard={ENTER}&"
+						WAIT(5)
+					else
+						Print ("No se ingreso el numero de tarjeta")
+					'e03
+					End If
+				
+					'Validar que se muestre la ventana de bancos para confirmar el valor de la Corresponsalía
+					'04
+					If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=BANCOS").exist(12) Then
+							WpfWindow("classname:=Oxxo.Xpos.Shell").WpfEdit("devname:=txtCaptureAmmount").highlight
+							WpfWindow("classname:=Oxxo.Xpos.Shell").WpfEdit("devname:=txtCaptureAmmount").Set sValor
+							simulateUserInput "&Keyboard={ENTER}&"						
+							WpfWindow("classname:=Oxxo.Xpos.Shell").WpfEdit("devname:=txtConfirmAmmount").highlight
+							WpfWindow("classname:=Oxxo.Xpos.Shell").WpfEdit("devname:=txtConfirmAmmount").Type sValor
+							simulateUserInput "&Keyboard={ENTER}&"
+				      'e04
+					
+					End If
+				
+					'Dar click en bónton confirmando que la cantidad de la transferencia es correcta
+					'05
+					If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=¿Todo Correcto\?").exist(12) Then
+						
+						WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=btnYes").Click
+					'e05	
+					End If
+						
+					
+					pressButton "&Label=$(+)&devname=btnTotalizar&index=0"
+					'Desea Tiempo Aire?
+					'MensajesFlotantes			
+			
+					'Redondeo "&redondear=Si&"					
+					pressButton "&Label=Pagar&devname=btn1&index=0"
+					'06		
+					'If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=Aviso").Exist(5) Then
+						'pressButton "&Label=POSPONER&devname=btnPostpone&index=0"
+					'e06	
+					'End If
+					wait 2
+					pressButton "&Label=Continu&ar e imprimir&text=Continu&ar e imprimir&"
+			'e02	
+			End If	
+			
+		    		'07 Transferecnia a tarjeta realizada correctamente 
+					If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=TITLE","text:=Aviso").Exist(10) Then
+							WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=TITLE","text:=Aviso").Highlight
+							WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=acceptButton").Highlight
+							wait 2
+							pressButton "&Label=Aceptar&devname=acceptButton&index=0"
+					'e07		
+					End If
+					'08 Desea reimprimir el ticket  ??
+					If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=TITLE","text:=Aviso").Exist(10) Then
+		 				WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=TITLE","text:=Aviso").Highlight
+						'WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=Btn1").Highlight  
+						WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=Btn2").Highlight 
+						pressButton "&Label=No&devname=Btn2&index=0" ' No desea reimprimir el ticket 
+					'e08	
+					End If
+		'e01
+		End If	
+	
+	MensajesFlotantes
+	
+	
+End Function
+
+Public Function CP_FunAp14_019(sParameter)
+	﻿'#################################################################
+		'ID Prueba: CP_FunAp14_019
+		'Función de Negocio: Funcionalidad
+		'TestName: MTC-FT-001- Venta de TAE pagada con efectivo y servicio encendido en Xmonitor
+		'Aplicacion: XPOS
+		'Criticidad: Crítica/Baja
+		'Autor: Baltazar Lugo
+		'#################################################################
+	'	precondiciones: tener un numero de telefono valido
+			sParameter = "&Producto=8100000001&NombreProducto=TAE TELCEL 80&"
+		Dim sTestId, sId, sStep
+		Dim sPswd, sValor
+		
+		sTestId = "CP_FunAp14_019"
+		sProducto = getParameter(sParameter, "Producto")
+		sNombreProducto = getParameter(sParameter, "NombreProducto")
+		
+		'### Test ###
+		CP_VerificaSistema
+		
+		XPOSLOGIN
+		MontoInical
+		MensajesFlotantes
+	
+	
+		'### Test ###
+	    Menu Array("Tiempo Aire", "TELCEL","TAE TELCEL \$80")
+	      
+	    wait(2)
+	    pressButton "&Label=$(+)&devname=btnTotalizar&index=0"
+	    wait(2)
+	    
+	    'Mensaje lealtad
+	 	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=NO DESEO ACUMULAR PUNTOS EN ESTA COMPRA","devname:=btnAbandom").Exist(2) Then
+			WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=NO DESEO ACUMULAR PUNTOS EN ESTA COMPRA","devname:=btnAbandom").Click
+		End If
+		MensajesFlotantes
+	
+		wait 2
+		If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Desea Tiempo Aire\?").Exist(5) Then
+			    pressButton "&Label=No&devname=Btn2&index=0"
+		End If
+	
+	   If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=¿ Quiere ayudar redondeando \?").Exist(1) Then
+		   Redondeo "&redondear=No&"
+		End If
+	    
+	    pressButton "&Label=Pagar&devname=btn1&index=0"
+	    wait 5
+	    
+	    'MensajesFlotantes
+		'CierraVentanaRetiroyTareas
+		
+		writeTextBox "&Label=NumCel&nativeclass=TXEdit&click=SI&enter=SI&index=0&", sProducto
+	    wait 2	
+		writeTextBox "&Label=NumCelConfirmar&nativeclass=TXEdit&click=SI&enter=SI&index=0&", sProducto	
+	
+		pressButton "&Label=Aceptar y Continuar&nativeclass=TButton&regexpwndtitle=&Aceptar y continuar&"
+	
+			If  WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Devolver").Exist(30) 	Then
+					'pressButton "&Label=Aceptar&devname=acceptButton&index=0"
+					pressButton "&Label=Aceptar&devname=acceptButton&index=0"
+					datatable("DT_Result",dtGlobalSheet) = "KO"
+					datatable("DT_APIType",dtGlobalSheet) = "CODIGO"	
+					datatable("DT_APITitle",dtGlobalSheet) = "CODIGO"  & " - " &  sTestId & " - " & sNombreProducto & " KO "		
+					sNombreError = """Error-CODIGO"  & " - " &  sTestId & " - " & sNombreProducto & " KO """			
+					sCadena= "--op add -ty bug --t " & sNombreError  & " --sr "  & datatable("DT_StepsToReproduce",dtGlobalSheet)  & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet) 
+	'				systemutil.run "C:\\OXXO\\Genera bugs\\Ejecutable_CreacionBUG\\Oxxo.Xpos.TFS.Api\\Oxxo.Xpos.TFS.Api.exe", sCadena
+					Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "No logró hacer conexión TAE, "& sNombreProducto
+			End If
+	
+	
+	'    If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=Aviso").Exist(3) Then
+	'		    pressButton "&Label=POSPONER&devname=btnPostpone&index=0"
+	'		    
+	'	End If
+	'CierraVentanaRetiroyTareas
+	
+	'consulta ultimo ticket.
+	'Validación del ticket y de base de datos si considen los montos 
+	sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+	'Buscar Monto en el ticket del servicio en liena
+	sFolio2= BuscaTiketServicio(sNota, iFolio, 16)
+	print ("Monto obtenido del ticket Efectivo M.N.: " + sFolio2)
+	
+	'Obtener numero de ticket del serrvicio BuscaTiketServicio [13]
+	sFolio= BuscaFolioVenta(sNota, iFolio,6)
+	
+	
+	wait 4
+	sFolioA = "0" 
+	Call BuscaUltimoTicket(sFolioA)
+	'sFolio= BuscaFolioVenta(sNota, iFolio,6)
+	Print ("Numero del folio: " & sFolioA)
+	
+	sFolio0 = 0
+	sFolio0 = Trim(sFolioA)
+	'Msgbox "ticket: "& sFolioA & " y el folio: " & sFolio0
+	Call Workbook_Open ("ticket"& sFolioA & "folio "& sFolio0,5) 
+	'sFolio="6306014"
+	
+	wait 3
+	'Montos_cfe_con_Artic suirve para traer el monto total de los servicios
+	CFEO=Montos_CFE_CON_ARTIC(sFolioA) 
+	'Msgbox "Total BD: "& CFEO  'Comisión
+	Call Workbook_Open ("Total BD " & CFEO & "  ,ticket completo en C:\UFT\TiketEvidencia\MTC-FT-001- Venta de TAE pagada con efectivo y servicio encendido en Xmonitor",5) 
+	
+	wait 3
+	TOTAL=CFEO
+	'pagoServicio = CFEO(1,2)
+	'comision = CInt(comision)
+	'pagoServicio = CInt(pagoServicio)
+	'sTotalTicket = CInt(sFolio2)
+	'int TotalServicio = 0
+	
+	'suma del monto del servicio y el monto de la comisón 
+	TotalServicio=0.0
+	TotalServicio =TOTAL
+	
+	Print ( "tipo: " &  VarType(TotalServicio))
+	Print ( "Monto obtenido de la base de datos: " & CFEO)
+	Print ( "Monto obtenido de la base de datos: " & TotalServicio)
+	
+	T=CDbl(TotalServicio)
+	Print ( "tipo despues de cbdl: " &  VarType(T))
+	Print ( "tt: " &  T)
+	'Validación el monto del ticket es igual al monto de la base de datos ?
+	If TotalServicio1=sTotalTicket Then
+	Print ("Caso de prueba pasado coincide el monto del ticket con la de la base de datos")
+	'guardar ticket en txt
+	 If Window("regexpwndtitle:=Microsoft PosPrinter Simulator","regexpwndclass:=WindowsForms10.Window.8.app.*").WinObject("window id:=0","regexpwndclass:=WindowsForms10.EDIT.app.*","nativeclass:=WindowsForms10.EDIT.app.*","index:=1").Exist(2) Then
+	        Window("regexpwndtitle:=Microsoft PosPrinter Simulator","regexpwndclass:=WindowsForms10.Window.8.app.*").WinObject("window id:=0","regexpwndclass:=WindowsForms10.EDIT.app.*","nativeclass:=WindowsForms10.EDIT.app.*","index:=1").highlight
+	        sToket=Window("regexpwndtitle:=Microsoft PosPrinter Simulator","regexpwndclass:=WindowsForms10.Window.8.app.*").WinObject("window id:=0","regexpwndclass:=WindowsForms10.EDIT.app.*","nativeclass:=WindowsForms10.EDIT.app.*","index:=1").GetROProperty("text")   
+	        dFechaActual=Date()
+	        tHoraActual= time()
+	        Set fso = CreateObject("Scripting.FileSystemObject")
+	        Set tf = fso.CreateTextFile("C:\\UFT\\TiketEvidencia\\MTC-FT-001- Venta de TAE pagada con efectivo y servicio encendido en Xmonitor" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & ".txt", True )
+	        call Workbook_Open("C:\UFT\TiketEvidencia\MTC-FT-001- Venta de TAE pagada con efectivo y servicio encendido en Xmonitor" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & ".txt",5)
+	        'msgbox "C:\\UFT\\MTC_FT_015_ReversaAutomáticaTAE" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & ".txt"   
+	        wait 1
+	        tf.Write(sToket)    'sFormula
+	        tf.Close()
+	        wait 1
+	    End If
+		
+	Else
+		'Print "Error No se emuestra la Ventana P_Linea"
+		Call Workbook_Open ("Caso de prueba fallado, Error no coincide el monto del ticket con la BD",5) ' imprimir en pantalla ventana flotante'			
+		datatable("DT_APIType",dtGlobalSheet) = "CODIGO"	
+		datatable("DT_APITitle",dtGlobalSheet) = "CODIGO"  & " - " &  sTestId & " - " & sNombreProducto & " KO "		
+		sNombreError = "Error no coincide el monto del ticket con la BD"			
+		sCadena= "--op add -ty bug --t " & sNombreError  & " --sr "  & datatable("DT_StepsToReproduce",dtGlobalSheet)  & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet) 
+		'systemutil.run "C:\\OXXO\\Genera bugs\\Ejecutable_CreacionBUG\\Oxxo.Xpos.TFS.Api\\Oxxo.Xpos.TFS.Api.exe", sCadena
+		Reporter.ReportEvent micFail,  "Error Caso de Prueba "& sTestId, "Error no coincide el monto del ticket con la BD"	
+	
+		wait 4
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		carpe=	"TiketEvidencia"	
+		dir="C:\UFT\" & carpe
+		If Not fso.FolderExists(dir) Then
+			fso.CreateFolder (dir)
+		End If
+		sCP="CP_FunAp14_019"
+	    dFechaActual=Date()
+	    tHoraActual= time()
+	    call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png",5)
+		ScreenShotName = Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_IM.png"
+		ScreenName ="C:\UFT\TiketEvidencia"&"\"&ScreenShotName
+		Desktop.CaptureBitmap ScreenName,True	
+	
+	End If
+	wait 2
+	
+	MensajesFlotantes
+End Function
+
+Public Function CP_FunAp14_007(sParameter)
+	﻿'#################################################################
+	'ID Prueba: CP_FunAp14_007
+	'Función de Negocio: CINES-Venta de Boletos de cine
+	'TestName: MTC-FT-002- CINES-Venta de Boletos de cine
+	'Aplicacion: XPOS
+	'Criticidad: Crítica/Alta
+	'Autor: B Alonso Mejia Ortiz
+	'#################################################################
+	sParameter = "&Producto=99123402&NombreProducto=IZZI&PrecioServicio=350.00&"
+	Dim sTestId, sId, sStep
+	Dim sPswd, sValor
+	Dim fso,sNota
+	Dim  ObjCon, StrSQuery
+	
+	Set ObjCon= GetCConexionBd
+	
+	'	sIPProcesos=datatable("DT_IP_Pro",dtGlobalSheet)
+	sTestId = "CP_FunAp14_007"	
+	sProducto = getParameter(sParameter, "Producto")
+	sNombreProducto = getParameter(sParameter, "NombreProducto")
+	sPrecio = getParameter(sParameter, "PrecioServicio")
+	
+	CP_VerificaSistema
+	'### Test ###
+	wait 10		
+	XPOSLOGIN
+	wait 2
+	MontoInical
+	wait 2
+	MensajesFlotantes
+	wait 2
+	
+	'- Ir a menú Servicios>Boletos de Cine
+	'- ?Validar que se muestre la pantalla de Cinépolis
+	'- Seleccionar la localidad
+	'- ?Validar que al desplegar al combo se muestren todas las localidades.
+	'- Seleccionar alguno de los cines en "Seleccione Una Opción"
+	'- ?Validar que al seleccionar el cine por Zona cambie de color el cuadro de texto seleccionado.
+	'- Seleccionar el Numero de Boletos
+	'- ?Validar que al seleccionar el número de Boletos se muestre la cantidad a pagar en el "TOTAL".
+	'- Seleccionar la opción Comprar
+	'- ?Validar que se muestre el cuadro de texto ¿Confirmar Compra de Boletos?
+	'- Seleccionar alguna de las respuestas al mostrarse el mensaje ¿Confirmar Compra de Boletos?
+	'- ?Validar que se muestre en el "Journal" la descripción "Cinépolis Media" y la cantidad total a pagar.
+	'- Seleccionar la opción Subtotalizar $[+]
+	'- ?Validar que al seleccionar Subtotalizar se muestre la leyenda "Desea tiempo Aire?"
+	'- Seleccionar en la Leyenda "Desea Tiempo Aire "
+	'- ?Se muestren los tipo de pago.
+	'- Seleccionar alguno de los tipos de pago.
+	'- ?Validar que se imprima el ticket con la descripción correspondiente al total de los boletos comprados.
+	'
+	Menu Array("Servicios", "BOLETOS DE CINE")
+	wait 20
+	
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").highlight
+	If Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCustomComboBoxInnerEdit").Exist(2) Then
+		Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCustomComboBoxInnerEdit").highlight
+		wait 2
+		Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCustomComboBoxInnerEdit").Type "MONTERREY" @@ hightlight id_;_4522430_;_script infofile_;_ZIP::ssf158.xml_;_
+		wait 2
+	End If
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCustomComboBoxInnerEdit").Type  micReturn @@ hightlight id_;_4522430_;_script infofile_;_ZIP::ssf159.xml_;_
+	wait 5
+	Window("regexpwndtitle:=FrmAviso","regexpwndclass:=TFrmAviso","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TAdvSmoothButton").Click '43,21 Aceptar @@ hightlight id_;_133012_;_script infofile_;_ZIP::ssf160.xml_;_
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TEdit").Type micAltDwn + "1" + micAltUp @@ hightlight id_;_3802264_;_script infofile_;_ZIP::ssf161.xml_;_
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TJvValidateEdit").Click '27,13 @@ hightlight id_;_198544_;_script infofile_;_ZIP::ssf162.xml_;_
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TJvValidateEdit").highlight
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TJvValidateEdit").Click
+	wait 2
+	simulateUserInput "&Keyboard={DEL}&"
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TJvValidateEdit").Type "2"
+	wait 2
+	simulateUserInput "&Keyboard={ENTER}&"	
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Comprar","regexpwndclass:=TXiButton","nativeclass:=TXiButton").Click '54,26
+	wait 2
+	Window("regexpwndtitle:=FrmAviso","regexpwndclass:=TFrmAviso","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TXiPanel").Click '156,50 @@ hightlight id_;_395120_;_script infofile_;_ZIP::ssf167.xml_;_
+	wait 2
+	Window("regexpwndtitle:=FrmAviso","regexpwndclass:=TFrmAviso","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Si","regexpwndclass:=TAdvSmoothButton","nativeclass:=TAdvSmoothButton").Click '44,26 @@ hightlight id_;_591722_;_script infofile_;_ZIP::ssf168.xml_;_
+	wait 10
+	pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+	wait 2
+	MensajesFlotantes
+	wait 2
+	pressButton "&Label=Pagar&devname=btn1&index=0&wait=0"
+	wait 30
+	MensajesFlotantes
+	wait 2
+	sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+	
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	
+	carpe=	"TiketEvidencia"	
+	dir="C:\UFT\" & carpe
+	If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+	End If
+	sCP="CP_FunAp14_007"
+	
+	dFechaActual=Date()
+	tHoraActual= time()
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set tf = fso.CreateTextFile("C:\\UFT\\TiketEvidencia\\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_BC.txt", True )
+	call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_BC.txt",5)
+	wait 1
+	tf.Write(sNota)    'sFormula
+	tf.Close()
+	wait 1	
+	
+	
+End Function
+
+Public Function CP_FunAp14_008(sParameter)
+	﻿'#################################################################
+	'ID Prueba: CP_FunAp14_008
+	'Función de Negocio: Venta de Boletos de cine y artículos
+	'TestName: MTC-FT-003- CINES-Venta de Boletos de cine y artículos
+	'Aplicacion: XPOS
+	'Criticidad: Crítica/Alta
+	'Autor: B Alonso Mejia Ortiz
+	'#################################################################
+	sParameter = "&Producto=99123402&NombreProducto=IZZI&PrecioServicio=350.00&"
+	Dim sTestId, sId, sStep
+	Dim sPswd, sValor
+	Dim fso,sNota
+	Dim  ObjCon, StrSQuery
+	
+	Set ObjCon= GetCConexionBd
+	
+	'	sIPProcesos=datatable("DT_IP_Pro",dtGlobalSheet)
+	sTestId = "CP_FunAp14_008"	
+	sProducto = getParameter(sParameter, "Producto")
+	sNombreProducto = getParameter(sParameter, "NombreProducto")
+	sPrecio = getParameter(sParameter, "PrecioServicio")
+	
+	'- |- Ir a menú Servicios>Boletos de Cine
+	'- ?Validar que se muestre la pantalla de Cinépolis
+	'- Seleccionar la localidad
+	'- ?Validar que al desplegar al combo se muestren todas las localidades.
+	'- Seleccionar alguno de los cines en "Seleccione Una Opción"
+	'- ?Validar que al seleccionar el cine por Zona cambie de color el cuadro de texto seleccionado.
+	'- Seleccionar el Numero de Boletos
+	'- ?Validar que al seleccionar el número de Boletos se muestre la cantidad a pagar en el "TOTAL".
+	'- Seleccionar la opción Comprar
+	'- ?Validar que se muestre el cuadro de texto ¿Confirmar Compra de Boletos?
+	'- Seleccionar alguna de las respuestas al mostrarse el mensaje ¿Confirmar Compra de Boletos?
+	'- ?Validar que se muestre en el "Journal" la descripción "Cinépolis Media" y la cantidad total a pagar.
+	'- Seleccionar la opción Subtotalizar $[+]
+	'- ?Validar que al seleccionar Subtotalizar se muestre la leyenda "Desea tiempo Aire?"
+	'- Seleccionar en la Leyenda "Desea Tiempo Aire "
+	'- ?Validar que se muestren los tipo de pago.
+	'- Seleccionar alguno de los tipos de pago
+	'- ?Validar que se imprima el ticket con la descripción correspondiente al total de los boletos comprados.
+	'
+	Menu Array("Servicios", "BOLETOS DE CINE")
+	wait 20
+	
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").highlight
+	If Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCustomComboBoxInnerEdit").Exist(2) Then
+		Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCustomComboBoxInnerEdit").highlight
+		wait 2
+		Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCustomComboBoxInnerEdit").Type "MONTERREY" @@ hightlight id_;_4522430_;_script infofile_;_ZIP::ssf158.xml_;_
+		wait 2
+	End If
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TcxCustomComboBoxInnerEdit").Type  micReturn @@ hightlight id_;_4522430_;_script infofile_;_ZIP::ssf159.xml_;_
+	wait 5
+	Window("regexpwndtitle:=FrmAviso","regexpwndclass:=TFrmAviso","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TAdvSmoothButton").Click '43,21 Aceptar @@ hightlight id_;_133012_;_script infofile_;_ZIP::ssf160.xml_;_
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TEdit").Type micAltDwn + "1" + micAltUp @@ hightlight id_;_3802264_;_script infofile_;_ZIP::ssf161.xml_;_
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TJvValidateEdit").Click '27,13 @@ hightlight id_;_198544_;_script infofile_;_ZIP::ssf162.xml_;_
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TJvValidateEdit").highlight
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TJvValidateEdit").Click
+	wait 2
+	simulateUserInput "&Keyboard={DEL}&"
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TJvValidateEdit").Type "2"
+	wait 2
+	simulateUserInput "&Keyboard={ENTER}&"	
+	wait 2
+	Window("regexpwndtitle:=CINEPOLIS","regexpwndclass:=TfrmBCine","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Comprar","regexpwndclass:=TXiButton","nativeclass:=TXiButton").Click '54,26
+	wait 2
+	Window("regexpwndtitle:=FrmAviso","regexpwndclass:=TFrmAviso","is owned window:=True","is child window:=False").WinObject("regexpwndclass:=TXiPanel").Click '156,50 @@ hightlight id_;_395120_;_script infofile_;_ZIP::ssf167.xml_;_
+	wait 2
+	Window("regexpwndtitle:=FrmAviso","regexpwndclass:=TFrmAviso","is owned window:=True","is child window:=False").WinObject("window id:=0","text:=&Si","regexpwndclass:=TAdvSmoothButton","nativeclass:=TAdvSmoothButton").Click '44,26 @@ hightlight id_;_591722_;_script infofile_;_ZIP::ssf168.xml_;_
+	wait 2
+	sParameter = "&Producto=7503003764670&NombreProducto=TORTILLASHARINA360G&Tecla=0&"
+	
+	sProducto = getParameter(sParameter, "Producto")
+	sNombreProducto = getParameter(sParameter, "NombreProducto")
+	sTecla = getParameter(sParameter, "Tecla")
+	
+	WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("devname:=btnSearchByPrice","text:=Precio").Highlight
+	pressButton "&Label=Precio&devname=btnSearchByPrice&index=0"
+	writeTextBox "&devname=txtCode&click=SI&enter=SI", sProducto			
+	
+	pressButton "&Label=Aceptar&devname=btnAccept&index=0"
+	
+	wait 10
+	pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+	wait 2
+	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Desea Tiempo Aire\?").Exist(5) Then
+		    pressButton "&Label=No&devname=Btn2&index=0"
+	End If
+	wait 2
+	MensajesFlotantes
+	wait 2
+	Redondeo "&redondear=No&"	
+	wait 2
+	pressButton "&Label=Pagar&devname=btn1&index=0&wait=0"
+	wait 30
+	MensajesFlotantes
+	wait 2
+	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Entregar al cliente la cantidad de.*").Exist(5) Then
+		pressButton "&Label=Aceptar&devname=accpetButton&index=0"
+	End If
+	MensajesFlotantes
+	sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+	
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	
+	carpe=	"TiketEvidencia"	
+	dir="C:\UFT\" & carpe
+	If Not fso.FolderExists(dir) Then
+		fso.CreateFolder (dir)
+	End If
+	sCP="CP_FunAp14_008"
+	
+	dFechaActual=Date()
+	tHoraActual= time()
+	Set fso = CreateObject("Scripting.FileSystemObject")
+	Set tf = fso.CreateTextFile("C:\\UFT\\TiketEvidencia\\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_BC.txt", True )
+	call Workbook_Open("C:\UFT\TiketEvidencia\" & Right("0000" & CSTR(Year(DATEVALUE(dFechaActual))), 4) & Right("00" & CSTR(Month(DATEVALUE(dFechaActual))), 2) & Right("00" & CSTR(Day(DATEVALUE(dFechaActual))), 2) & "_" & HOUR (tHoraActual) & MINUTE (tHoraActual) & SECOND (tHoraActual) & "_" & sCP & "_BC.txt",5)
+	wait 1
+	tf.Write(sNota)    'sFormula
+	tf.Close()
+	wait 1	
+	
+	
+End Function
+
+Public Function CP_FunAp14_026(sParameter)
+	﻿	'#################################################################
+		'ID Prueba: CP_FunAp14_026
+		'Función de Negocio: AP14 ENDIN PAQUETE 4
+		'TestName: MTC-FT-009-Devolucion automática de pago en efectivo y  TAE al presionar botón no solicitar
+		'Aplicacion: XPOS
+		'Criticidad: Alta
+		'Autor: Jonathan Rubio
+		'#################################################################
+		sParameter = "&Telefono=8100000001&NombreProducto=TAE TELCEL 80&"
+		'sParameter = "&Telefono=8100000001&NombreProducto=TAE TELCEL 80&GiftCard=076750168369891002334089215074&"
+			
+		
+		Dim sTestId, sId, sStep
+		Dim sPswd, sValor
+		
+		sTestId = "CP_FunAp14_026"
+		sTelefono = getParameter(sParameter, "Telefono")
+		sNombreProducto = getParameter(sParameter, "NombreProducto")
+		
+			
+		'### Test ###
+		CP_VerificaSistema
+		
+		XPOSLOGIN
+		MontoInical
+		MensajesFlotantes
+	
+	
+		'### Test ###
+	    Menu Array("Tiempo Aire", "TELCEL","TAE TELCEL \$80")
+	       
+		wait 15
+		
+				
+	    pressButton "&Label=$(+)&devname=btnTotalizar&index=0"
+	    wait(2)
+	    
+	    'Mensaje lealtad
+	' 	If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=NO DESEO ACUMULAR PUNTOS EN ESTA COMPRA","devname:=btnAbandom").Exist(2) Then
+	'		WpfWindow("classname:=Oxxo.Xpos.Shell").WpfButton("text:=NO DESEO ACUMULAR PUNTOS EN ESTA COMPRA","devname:=btnAbandom").Click
+	'	End If
+		MensajesFlotantes
+	
+		wait 2
+		If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Desea Tiempo Aire\?").Exist(5) Then
+			    pressButton "&Label=No&devname=Btn2&index=0"
+		End If
+	
+	   If WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("devname:=¿ Quiere ayudar redondeando \?").Exist(1) Then
+		   Redondeo "&redondear=No&"
+		End If
+	    
+	    pressButton "&Label=Pagar&devname=btn1&index=0"
+	    wait 2 
+	    
+	  
+		writeTextBox "&Label=NumCel&nativeclass=TXEdit&click=SI&enter=SI&index=0&", sTelefono	
+		writeTextBox "&Label=NumCelConfirmar&nativeclass=TXEdit&click=SI&enter=SI&index=0&", sTelefono	
+	
+	 @@ hightlight id_;_1909844608_;_script infofile_;_ZIP::ssf27.xml_;_
+	
+		'click en no solicitar... validar que se arealice la validación
+		pressButton "&Label=&No solicitar&nativeclass=TButton&regexpwndtitle=&No solicitar&"
+		
+		wait 5
+		'ventana de devolver
+	'	WpfWindow("Xpos").WpfObject("Devolver").Click 47,16 @@ hightlight id_;_1902323376_;_script infofile_;_ZIP::ssf26.xml_;_
+	'	WpfWindow("Xpos").WpfButton("Aceptar").Click
+		
+		
+		
+		If  WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Devolver").Exist(30)	Then
+			WpfWindow("classname:=Oxxo.Xpos.Shell").WpfObject("text:=Devolver").highlight
+			'pressButton "&Label=Aceptar&devname=acceptButton&index=0"
+			pressButton "&Label=Aceptar&devname=acceptButton&index=0"
+			
+			Print ("Se realizo devolución")
+			Call Workbook_Open ("Caso de prueba Pasado, Devoluciones realizada correctamente",5) ' imprimir en pantalla ventana flotante'			
+			
+		Else
+			datatable("DT_Result",dtGlobalSheet) = "KO"
+			datatable("DT_APIType",dtGlobalSheet) = "CODIGO"	
+			datatable("DT_APITitle",dtGlobalSheet) = "CODIGO"  & " - " &  sTestId & " - " & sNombreProducto & " KO "		
+			sNombreError = """Error-CODIGO"  & " - " &  sTestId & " - " & sNombreProducto & " KO """			
+			sCadena= "--op add -ty bug --t " & sNombreError  & " --sr "  & datatable("DT_StepsToReproduce",dtGlobalSheet)  & " --ac "& datatable("DT_AccCriteria",dtGlobalSheet) 
+	'		systemutil.run "C:\\OXXO\\Genera bugs\\Ejecutable_CreacionBUG\\Oxxo.Xpos.TFS.Api\\Oxxo.Xpos.TFS.Api.exe", sCadena
+			Reporter.ReportEvent micFail, "Error Caso de Prueba "& sTestId, "No logró hacer la devolución TAE, "& sNombreProducto
+		End If
+	
+	
+	MensajesFlotantes
+End Function
+
+Public Function CP_FunAp14_016(sParameter)
+	﻿'#################################################################
+	'ID Prueba: CP_FunAp14_015
+	'Función de Negocio: Pagos en Linea
+	'TestName: MTC-FT-011- MUN-Pagar Impuesto Predial con DISH en Linea
+	'Aplicacion: XPOS
+	'Criticidad: Crítica/Baja
+	'Autor: Miguel Angel Escamilla Reyes
+	'#################################################################
+	 
+	sTestId = "CP_FunAp14_015"	
+	sFolio = "991234502"
+	
+	
+	'### Test ###
+		MensajesFlotantes
+	
+		'Seleccionar menú >servicios>DISH EN LINEA
+		'?Se mostrara aviso de cobro de consulta
+		'Seleccionar al mostrarse el mensaje "Se cobrar 5.00 por consulta .Continuar?"
+		'?Validar que se muestre la pantalla Pagos en Línea
+		'Ingresar Referencia >Confirmar>Consultar>Procesar
+		'?Validar que se muestre en el Journal el servicio
+		Menu Array("Servicios", "DISH EN LINEA")
+		wait 6
+		WpfWindow("Xpos").WpfButton("Confirmacion 5 pesos SI").Click
+		wait 4 
+		Window("regexpwndtitle:=Pago de Servicios en Línea","regexpwndclass:=TfrmOnLine").WinObject("text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=0").Type  sFolio + micTab
+		Window("regexpwndtitle:=Pago de Servicios en Línea","regexpwndclass:=TfrmOnLine").WinObject("text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=1").Type sFolio + micTab
+		Window("Pago de Servicios en Línea").WinObject("Consulta").Click
+		wait 4
+		Window("regexpwndtitle:=Pago de Servicios en Línea","regexpwndclass:=TfrmOnLine").WinObject("text:=.*","regexpwndclass:=TJvValidateEdit","nativeclass:=TJvValidateEdit","Location:=0").Type "721" + micTab
+		Window("regexpwndtitle:=Pago de Servicios en Línea","regexpwndclass:=TfrmOnLine").WinObject("text:=.*","regexpwndclass:=TJvValidateEdit","nativeclass:=TJvValidateEdit","Location:=1").Type "721" + micTab
+		wait 4
+		Window("Pago de Servicios en Línea").WinObject("Procesar").Click
+		Window("Aviso").WinObject("Sí").Click
+		
+		
+		'Seleccionar el menú "Servicios".
+		'?Validar que se muestren los Submenús de pago de servicios con los que cuenta el Xpos.
+		'Ingresar en el cuadro de Búsqueda "Impuesto Predial"
+		'?La pantalla solo mostrara el submenú Impuesto Predial
+		'Seleccionar el Submenú "Impuesto Predial"
+		wait 3
+		Menu Array("Servicios", "DISH EN LINEA")
+		
+		'?Mensaje "YA EXISTE UN SERVICIO EN LINEA PREVIO”
+		wait 2
+		WpfWindow("Xpos").WpfButton("Aceptar").Click
+		
+		wait 3
+		pressButton "&Label=$(+)&devname=btnTotalizar&index=0&wait=0"
+		MensajesFlotantes
+		pressButton "&Label=Pagar&devname=btn1&index=0&wait=0"
+			
+	'### Test ###
+		
+End Function
+
+Public Function CP_FunAp14_017(sParameter)
+	﻿'#################################################################
+	'ID Prueba: CP_FunAp14_017
+	'Función de Negocio: Pagos en Linea
+	'TestName: MTC-FT-013- MUN-Pagar Predial en línea y servicio apagado en Xmonitor
+	'Aplicacion: XPOS
+	'Criticidad: Crítica/Baja
+	'Autor: Miguel Angel Escamilla Reyes
+	'#################################################################
+	
+	Dim sTestId, sFolio
+	 
+	sTestId = "CP_FunAp14_017"	
+	sFolio = "09009004"
+	
+		'### Test ###
+					If Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10*.*","text:=Clear","enabled:=True").Exist(6) Then
+							Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10*.*","text:=Clear","enabled:=True").Highlight
+							Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10*.*","text:=Clear","enabled:=True").Click
+					End If
+	
+			MensajesFlotantes
+	
+		' Se apaga el serivio de Xmoitor
+		apagarXMonitor(true)
+		
+		' Seleccionar el menú "Servicios".
+		' ?Validar que se muestren los Submenús de pago de servicios con los que cuenta el Xpos.
+		' Ingresar en el cuadro de Búsqueda "Impuesto Predial"
+		' ?La pantalla solo mostrara el submenú Impuesto Predial
+		' Seleccionar el Submenú "Impuesto Predial"
+		' ?Validar que se muestre la pantalla el mensaje "Impuesto Predial" 
+		Menu Array("Servicios", "IMPUESTO PREDIAL")
+	
+		' Se cobrará 5.00 por consulta. Continuar…??
+		' Seleccionar al mostrarse el mensaje "Se cobrar 5.00 por consulta. ¿Continuar?"
+		wait 4
+		WpfWindow("Xpos").WpfButton("Confirmacion 5 pesos SI").Click
+	
+		' ?Validar que se muestre la pantalla Pagos en Línea
+		' Ingresar en a la pantalla Pagos en Línea el Número de Expediente
+		wait 4	
+		Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial").WinObject("text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=0").Type  sFolio + micTab
+		wait 2
+		Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial").WinObject("text:=.*","regexpwndclass:=TJvEdit","object class:=TJvEdit","nativeclass:=TJvEdit","Location:=1").Type  sFolio + micTab	
+		
+		' ?Validar que se Habilite el Botón
+		' Seleccionar
+		wait 2	
+		Window("regexpwndtitle:=Pago de Predial","regexpwndclass:=TfrmPredial").WinObject("text:=.*Consulta", "regexpwndclass:=TXiButton").Click
+		
+		' ?Validar que se muestre el mensaje “Problemas de conexión con WM” Desea continuar
+		' Seleccionar
+		' ?Validar que se cierre el mensaje, regrese al Journal y se muestre el mensaje Aviso “cancelación Normal”
+		wait 2
+		Window("FrmAviso").WinObject("No").Click
+		
+		' Seleccionar
+		' ?Validar que se cierre la pantalla de Aviso.
+		wait 2
+		WpfWindow("Xpos").WpfButton("Aceptar").Click
+		
+		' Se inicia el servicio Xmonitor
+		wait 2	
+		apagarXMonitor(false)
+		
+			'*** Obtener numero de ticket del serrvicio GeneraTicketTxt
+	
+					sArchivoRuta= ""
+					sNota=Window("text:=Microsoft PosPrinter Simulator").WinObject("nativeclass:=WindowsForms10\.EDIT\.app*.*","index:=1").GetROProperty("text")
+					testName = "CP_Vta_017"
+					sFolio= BuscaFolioVenta(sNota, iFolio,6)
+					GeneraTicketTxt sArchivoRuta,sNota,testName
+					call Workbook_Open("El ticket fue grabado como evidencia en: "&sArchivoRuta& "",5)
+	
+End Function
+
