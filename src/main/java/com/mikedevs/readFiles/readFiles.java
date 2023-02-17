@@ -79,9 +79,9 @@ public class readFiles {
         }
 
         connection conn = new connection();
-        conn.executeQuery("truncate table [dbo].[testCases];");
+        //conn.executeQuery("truncate table [dbo].[testCases];");
         list.forEach(x -> {
-            conn.executeQuery(String.format("INSERT INTO [dbo].[testCases] ([testCaseId], [testName], [author], [sourceFolder], [businessFunction], [description], [application], [criticality]) " +
+            conn.executeQuery(String.format("INSERT INTO `automation_xpos`.`testCases` (`testCaseId`, `testName`, `author`, `sourceFolder`, `businessFunction`, `description`, `application`, `criticality`) " +
                     "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", x.idPrueba, x.testName, x.autor, x.sourcePath, x.funcionNegocio, x.description, x.application, x.criticality));
             //System.out.println(String.format("Script: %s, TestName: %s, SourcePath: %s", x.idPrueba, x.testName, x.sorucePath));
         });
