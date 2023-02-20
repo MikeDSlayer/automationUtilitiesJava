@@ -28,7 +28,7 @@ public class writeExcel {
         Cell cellTitle = row.createCell(1);
 
         cellTitle.setCellStyle(cellStyle);
-        cellTitle.setCellValue("Caso de Preuba");
+        cellTitle.setCellValue("Id Script");
 
         Cell cellTestName = row.createCell(2);
         cellTestName.setCellStyle(cellStyle);
@@ -36,15 +36,15 @@ public class writeExcel {
 
         Cell cellAutor = row.createCell(3);
         cellAutor.setCellStyle(cellStyle);
-        cellAutor.setCellValue("Autor");
+        cellAutor.setCellValue("Funcion de Negocio");
 
         Cell cellBussines = row.createCell(4);
         cellBussines.setCellStyle(cellStyle);
-        cellBussines.setCellValue("Funcion de Negocio");
+        cellBussines.setCellValue("Aplicacion");
 
         Cell cellLocation = row.createCell(5);
         cellLocation.setCellStyle(cellStyle);
-        cellLocation.setCellValue("Ubicacion");
+        cellLocation.setCellValue("Criticabilidad");
 
         int rowCount = 0;
 
@@ -74,9 +74,13 @@ public class writeExcel {
             cell.setCellValue(model.testName);
 
             cell = row.createCell(3);
-            cell.setCellValue(model.autor);
+            cell.setCellValue(model.funcionNegocio);
 
             cell = row.createCell(4);
-            cell.setCellValue(model.sourcePath);
+            cell.setCellValue(model.application);
+
+            cell = row.createCell(5);
+            cell.setCellValue(model.criticality);
+
     }
 }

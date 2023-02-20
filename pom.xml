@@ -33,6 +33,11 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.32</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>6.4.0.202211300538-r</version>
+        </dependency>
 
 
 
